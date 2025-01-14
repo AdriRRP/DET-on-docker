@@ -19,5 +19,7 @@ RUN git clone https://github.com/sensepost/DET.git /opt/DET
 RUN pip install --no-cache-dir -r /opt/DET/requirements.txt \
     && pip install --no-cache-dir scapy==2.4.5
 
+RUN sed -i "s/f = open(filename, 'w')/f = open('exfiltration\/' + filename, 'w')/" det.py
+
 # Set entrypoint to allow passing arguments to DET
 ENTRYPOINT ["python", "det.py"]

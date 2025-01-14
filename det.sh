@@ -88,11 +88,6 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Fallback to mounting the current directory if no file or directory is specified
-if [[ -z "$MOUNT_OPTIONS" ]]; then
-    MOUNT_OPTIONS+="-v $(pwd):/data:rw "
-fi
-
 # Check if the Docker image exists
 IMAGE_NAME="det-docker"
 if ! docker images | grep -q "$IMAGE_NAME"; then
@@ -105,9 +100,14 @@ if ! docker images | grep -q "$IMAGE_NAME"; then
     fi
 fi
 
+# Mount config file 
+MOUNT_OPTIONS+="-v $CONFIG_FILE:/opt/DET/config.json:ro "
+
+# mount exfiltration folder
+MOUNT_OPTIONS+="-v ./exfiltration/:/opt/DET/exfiltration:rw "
+
 # Run the container
 echo "Running DET with the following arguments: ${DET_PARAMS[*]}"
 docker run -ti --rm --privileged --network host --cap-add=NET_ADMIN --cap-add=NET_RAW \
-    -v "$CONFIG_FILE:/opt/DET/config.json:ro" \
     $MOUNT_OPTIONS \
     "$IMAGE_NAME" "${DET_PARAMS[@]}"
